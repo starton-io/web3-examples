@@ -1,7 +1,6 @@
 ![Starton Banner](https://github.com/starton-io/.github/blob/master/github-banner.jpg?raw=true)
 
 # Web3 - NodeJS - Example
-> [Web3 - NodeJS - Examples](../../) > [Playground](../) > Monitor
 
 Discover and easily find all the code snippets we use in our Playground. You'll also find code examples to help you understand why Starton simplifies the use of blockchain.
 
