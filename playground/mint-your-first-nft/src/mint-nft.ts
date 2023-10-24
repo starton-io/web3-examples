@@ -1,5 +1,5 @@
-import {starton} from "./index";
-import {AxiosError} from "axios";
+import { starton } from './index'
+import { AxiosError } from 'axios'
 
 /*
 |--------------------------------------------------------------------------
@@ -7,10 +7,10 @@ import {AxiosError} from "axios";
 |--------------------------------------------------------------------------
 */
 export interface MintNftProps {
-    network: string
-    smartContractAddress: string
-    cid: string
-    signerWallet: string
+  network: string
+  smartContractAddress: string
+  cid: string
+  signerWallet: string
 }
 
 /*
@@ -18,21 +18,21 @@ export interface MintNftProps {
 | Method
 |--------------------------------------------------------------------------
 */
-export async function mintNft({network, cid, smartContractAddress, signerWallet}: MintNftProps) {
-    try {
-        const response =  await starton.post(`/smart-contract/${network}/${smartContractAddress}/call`,
-            {
-                functionName: 'mint(address,string)',
-                params: [smartContractAddress, cid],
-                signerWallet,
-                speed: 'average',
-            })
-        return response.data
-    } catch (error) {
-        if (error instanceof AxiosError) {
-            console.log(error.response?.data)
-        } else {
-            console.log(error)
-        }
+export async function mintNft ({ network, cid, smartContractAddress, signerWallet }: MintNftProps) {
+  try {
+    const response = await starton.post(`/smart-contract/${network}/${smartContractAddress}/call`,
+      {
+        functionName: 'mint(address,string)',
+        params: [smartContractAddress, cid],
+        signerWallet,
+        speed: 'average'
+      })
+    return response.data
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.log(error.response?.data)
+    } else {
+      console.log(error)
     }
+  }
 }

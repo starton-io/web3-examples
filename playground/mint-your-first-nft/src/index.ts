@@ -1,46 +1,49 @@
-import axios from "axios";
-import {getNetworks} from "./networks";
-import {getWalletBalance} from "./wallet";
-import {deploySmartContract} from "./deploy-smart-contract";
-import {config} from 'dotenv'
-import {uploadFileToIPFS} from "./upload-file-ipfs";
-import {mintNft} from "./mint-nft";
+import axios, { AxiosError } from 'axios'
+import { config } from 'dotenv'
+import { uploadNFTMetadata } from './upload-file-ipfs'
+import { mintNft } from './mint-nft'
+import path from 'path'
+import { deploySmartContract, uploadSmartContractMetadata } from './deploy-smart-contract'
 
 config()
 
 export const starton = axios.create({
-    baseURL: 'https://api.starton.com/v3',
-    headers: {
-        'x-api-key': process.env.STARTON_API_KEY
-    }
+  baseURL: 'https://api.starton.com/v3',
+  headers: {
+    'x-api-key': process.env.STARTON_API_KEY
+  }
 })
 
 export const selectedNetwork = 'avalanche-fuji'
 
-async function main() {
-    // Get all networks
-    // const networks = await getNetworks()
-    // console.log('Available Starton Networks', networks.map((network: { name: string }) => network.name))
-
-    // Get wallet balance
-    const walletBalance = await getWalletBalance(selectedNetwork, process.env.WALLET_ADDRESS as string)
-    console.log(walletBalance)
-
+async function main () {
+  try {
+    // Upload smart contract metadata
+    const metadata = await uploadSmartContractMetadata()
     // Deploy smart contract
-    const smartContract = await deploySmartContract('avalanche-fuji', process.env.WALLET_ADDRESS as string)
-    const smartContractAddress = smartContract?.address
-    if (!smartContractAddress) return
-    console.log('Smart Contract Deployed:', smartContractAddress)
+    const smartContract = await deploySmartContract(process.env.WALLET_ADDRESS as string, selectedNetwork, metadata.data.cid)
+    const smartContractAddress = smartContract?.data?.smartContract?.address
+    if (!smartContractAddress) {
+      throw new Error('Smart contract address is missing')
+    }
+    console.log('Smart Contract deployed on address:', smartContractAddress)
 
     // Upload and mint NFT
-    const pin = await uploadFileToIPFS(__dirname + '/assets/img.png')
+    const pin = await uploadNFTMetadata(path.join(__dirname, '/assets/img.png'))
+    console.log('Image uploaded with CID:', pin.data.cid)
     const nft = await mintNft({
-        cid: pin.id,
-        smartContractAddress,
-        network: selectedNetwork,
-        signerWallet: process.env.WALLET_ADDRESS as string
+      cid: pin.data.cid,
+      smartContractAddress,
+      network: selectedNetwork,
+      signerWallet: process.env.WALLET_ADDRESS as string
     })
-    console.log(nft)
+    console.log('NFT minted:', nft.data)
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.log(error?.response?.request.path, error?.response?.data)
+    }
+    console.log(error)
+  }
 }
 
 void main()
