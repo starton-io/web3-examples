@@ -6,7 +6,6 @@ Discover and easily find all the code snippets we use in our products. You'll al
 
 ## Table of contents
 
-- [Documentations](./docs/)
 - [Playground](./playground/)
 
 ## Documentation
